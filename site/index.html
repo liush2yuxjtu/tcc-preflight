@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>tcc-preflight · grant macOS permissions before you go headless</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;overflow-x:hidden}
+body{font:15px/1.45 -apple-system,system-ui,sans-serif;background:#0b0d12;color:#e6e8ee;min-height:100vh;display:flex;flex-direction:column;padding:18px 16px;gap:12px;max-width:560px;margin:0 auto}
+h1{font-size:22px;margin:0}h1 small{display:block;font-size:13px;color:#8b93a7;font-weight:400;margin-top:2px}
+.pain{background:#2a1418;border:1px solid #5c2630;border-radius:12px;padding:10px 12px;margin:0;font-size:14px}
+.cmd{display:flex;gap:8px;align-items:stretch}
+code{flex:1;min-width:0;background:#151a23;border:1px solid #2a3140;border-radius:10px;padding:10px;font:12.5px/1.4 Menlo,monospace;overflow-wrap:anywhere;color:#9fe0a8}
+button,a.btn{min-height:44px;min-width:44px;border:0;border-radius:10px;background:#3b82f6;color:#fff;font:600 14px system-ui;padding:0 14px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+img{width:100%;height:auto;border-radius:10px;border:1px solid #2a3140;display:block}
+ol{margin:0;padding-left:20px;font-size:13.5px;color:#b9c0d0}
+footer{display:flex;gap:8px;flex-wrap:wrap;font-size:12px;color:#8b93a7;align-items:center}
+footer a{color:#8fb4ff;min-height:44px;min-width:44px;padding:0 8px;display:inline-flex;align-items:center}
+</style></head><body>
+<h1>tcc-preflight<small>Grant every macOS privacy permission before your Mac mini agent goes headless.</small></h1>
+<p class="pain"><b>The pain:</b> a headless agent hits a hidden Camera / Screen Recording / Accessibility prompt that nobody can click — and silently fails.</p>
+<div class="cmd"><code id="c">git clone https://github.com/liush2yuxjtu/tcc-preflight &amp;&amp; cd tcc-preflight &amp;&amp; make &amp;&amp; bin/tcc-preflight</code><button id="b" aria-label="Copy install command">Copy</button></div>
+<img src="/checklist.png" alt="tcc-preflight checklist output: 7 permissions with PASS or MISSING" width="501" height="261">
+<ol><li>Run <b>tcc-preflight</b> on the Mac with a monitor attached; approve each prompt.</li><li>Plug in the HDMI dummy plug.</li><li>Go headless. Re-check anytime with <b>tcc-preflight --check</b> (never prompts).</li></ol>
+<footer><span>Mock-mode screenshot · real macOS prompts untested by this page.</span><a href="https://github.com/liush2yuxjtu/tcc-preflight">Source</a></footer>
+<script>b.onclick=()=>navigator.clipboard.writeText(c.textContent).then(()=>b.textContent='Copied')</script>
+</body></html>

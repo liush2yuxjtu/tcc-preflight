@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+# tcc-preflight — check (and optionally request) macOS TCC permissions in a fixed order.
+# Order: camera -> microphone -> screen -> accessibility -> automation -> input -> fulldisk
+# Each step checks first; already-granted steps are never prompted.
+# --check: read-only, status/preflight APIs only, never prompts.
+# TCC_PREFLIGHT_MOCK="camera=granted,microphone=denied,..." emulates the helper (Linux tests).
+# TCC_PREFLIGHT_TRACE=<file> appends one "<check|request> <perm>" line per helper call.
+set -euo pipefail
+VERSION=0.1.0
+PERMS=(camera microphone screen accessibility automation input fulldisk)
+declare -A LABEL=([camera]="Camera" [microphone]="Microphone" [screen]="Screen Recording"
+  [accessibility]="Accessibility" [automation]="Automation (System Events)"
+  [input]="Input Monitoring" [fulldisk]="Full Disk Access")
+MODE=request JSON=0
+usage(){ cat <<U
+Usage: tcc-preflight [--check] [--json] [--help] [--version]
+  (default)  check each permission in order; request only the missing ones
+  --check    read-only: status APIs only, never prompts, never opens Settings
+  --json     machine-readable output
+Exit: 0 all granted, 1 something missing, 2 usage/helper error
+U
+}
+for a in "$@"; do case "$a" in
+  --check) MODE=check;; --json) JSON=1;; -h|--help) usage; exit 0;;
+  --version) echo "tcc-preflight $VERSION"; exit 0;;
+  *) echo "unknown option: $a" >&2; usage >&2; exit 2;; esac; done
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+HELPER="${TCC_PREFLIGHT_HELPER:-$HERE/../build/TCCPreflight.app/Contents/MacOS/tcc-preflight-helper}"
+
+trace(){ [[ -n "${TCC_PREFLIGHT_TRACE:-}" ]] && echo "$1 $2" >> "$TCC_PREFLIGHT_TRACE"; return 0; }
+mock_state(){ # perm -> state from TCC_PREFLIGHT_MOCK (default: missing)
+  local kv; IFS=',' read -ra kv <<< "$TCC_PREFLIGHT_MOCK"
+  for p in "${kv[@]}"; do [[ "${p%%=*}" == "$1" ]] && { echo "${p#*=}"; return; }; done; echo missing; }
+helper(){ # verb perm -> prints granted|missing|denied|unknown
+  local verb=$1 perm=$2; trace "$verb" "$perm"
+  if [[ -n "${TCC_PREFLIGHT_MOCK:-}" ]]; then
+    local s; s=$(mock_state "$perm")
+    if [[ $verb == request && $s == prompt-grants ]]; then echo granted
+    elif [[ $s == prompt-grants ]]; then echo missing; else echo "$s"; fi
+    return 0; fi
+  [[ "$(uname -s)" == Darwin ]] || { echo "not macOS; set TCC_PREFLIGHT_MOCK for a dry run" >&2; exit 2; }
+  [[ -x "$HELPER" ]] || { echo "helper not built: $HELPER (run make)" >&2; exit 2; }
+  "$HELPER" "$verb" "$perm" || echo unknown
+}
+
+declare -A RESULT ACTION
+for p in "${PERMS[@]}"; do
+  s=$(helper check "$p"); act=none
+  if [[ $s != granted && $MODE == request ]]; then s=$(helper request "$p"); act=requested; fi
+  [[ $s == granted ]] && RESULT[$p]=pass || RESULT[$p]=missing
+  ACTION[$p]=$act
+done
+
+missing=0; for p in "${PERMS[@]}"; do [[ ${RESULT[$p]} == pass ]] || missing=$((missing+1)); done
+if (( JSON )); then
+  printf '{"tool":"tcc-preflight","version":"%s","mode":"%s","permissions":[' "$VERSION" "$MODE"
+  sep=; for p in "${PERMS[@]}"; do
+    printf '%s{"id":"%s","name":"%s","status":"%s","action":"%s"}' "$sep" "$p" "${LABEL[$p]}" "${RESULT[$p]}" "${ACTION[$p]}"; sep=,; done
+  printf '],"missing":%d,"ok":%s}\n' "$missing" "$( ((missing==0)) && echo true || echo false)"
+else
+  printf '%-3s %-28s %-8s %s\n' "#" "PERMISSION" "STATUS" "ACTION"
+  i=0; for p in "${PERMS[@]}"; do i=$((i+1))
+    printf '%-3s %-28s %-8s %s\n' "$i" "${LABEL[$p]}" "$( [[ ${RESULT[$p]} == pass ]] && echo PASS || echo MISSING)" "${ACTION[$p]}"; done
+  echo "mode=$MODE missing=$missing"
+fi
+(( missing == 0 ))

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleIdentifier</key><string>io.github.liush2yuxjtu.tcc-preflight</string>
+  <key>CFBundleName</key><string>TCCPreflight</string>
+  <key>CFBundleExecutable</key><string>tcc-preflight-helper</string>
+  <key>CFBundlePackageType</key><string>APPL</string>
+  <key>CFBundleShortVersionString</key><string>0.1.0</string>
+  <key>CFBundleVersion</key><string>1</string>
+  <key>LSMinimumSystemVersion</key><string>11.0</string>
+  <key>LSUIElement</key><true/>
+  <key>NSCameraUsageDescription</key><string>tcc-preflight asks for Camera so your agent can use it without a later surprise prompt.</string>
+  <key>NSMicrophoneUsageDescription</key><string>tcc-preflight asks for Microphone so your agent can record audio headless.</string>
+  <key>NSAppleEventsUsageDescription</key><string>tcc-preflight asks to control System Events so your agent's automation works.</string>
+  <key>NSScreenCaptureUsageDescription</key><string>tcc-preflight asks for Screen Recording so your agent can see the screen.</string>
+  <key>NSSystemAdministrationUsageDescription</key><string>tcc-preflight checks privacy permissions.</string>
+</dict>
+</plist>

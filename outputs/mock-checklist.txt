@@ -1,0 +1,9 @@
+#   PERMISSION                   STATUS   ACTION
+1   Camera                       PASS     none
+2   Microphone                   PASS     none
+3   Screen Recording             PASS     none
+4   Accessibility                PASS     none
+5   Automation (System Events)   PASS     requested
+6   Input Monitoring             MISSING  requested
+7   Full Disk Access             MISSING  requested
+mode=request missing=2
