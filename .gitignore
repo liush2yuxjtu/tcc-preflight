@@ -1,3 +1,4 @@
 helper/.build/
 build/
 outputs/live-*.png
+.cache/

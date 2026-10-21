@@ -73,6 +73,8 @@ bash scripts/verify.sh               # tests + file/secret/citation checks + swi
 SKIP_LIVE=1 bash scripts/verify.sh   # offline
 ```
 
+Includes a **bash 3.2 gate** (macOS ships `/bin/bash` 3.2): a lint for `declare -A`/`-n`, `mapfile`, `${x,,}`, `&>>`, `|&`, and the full test suite run under bash 3.2 — via `$BASH32`, else docker `bash:3.2`, else a cached source build of bash 3.2.57 into `.cache/` (needs gcc, make, bison).
+
 Green: every line `PASS`, final `RESULT: PASS`, exit 0. Live check needs python3 + `playwright` (Chromium). Pages deploy: `node scripts/deploy-gen.mjs` writes a Cloudflare API script that publishes `site/`.
 
 ## Not verified
